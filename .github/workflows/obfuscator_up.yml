@@ -23,6 +23,10 @@ jobs:
 
       - name: 检查备份文件是否存在
         run: |
+          if [ ! -f _worker_o.js.backup ]; then
+            echo "备份文件 _worker_o.js.backup 不存在，正在创建..."
+            cp _worker_o.js _worker_o.js.backup
+          fi
           if [ ! -f _worker.js.backup ]; then
             echo "备份文件 _worker.js.backup 不存在，正在创建..."
             cp _worker.js _worker.js.backup
@@ -34,7 +38,7 @@ jobs:
 
       - name: 混淆代码
         run: |
-          javascript-obfuscator 明文源码.js --output _worker.js \
+          javascript-obfuscator 明文源码.js --output _worker_o.js \
           --compact true \
           --control-flow-flattening true \
           --control-flow-flattening-threshold 1 \
@@ -52,11 +56,11 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add _worker.js _worker.js.backup
+          git add _worker_o.js _worker.js.backup
           if git diff --cached --quiet; then
             echo "没有文件更改，跳过提交"
           else
-            git commit -m "混淆 _worker.js 文件并备份原文件"
+            git commit -m "Obfuscated _worker_o.js"
           fi
 
       - name: 推送更改
